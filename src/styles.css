@@ -79,6 +79,49 @@ main {
   text-decoration: none;
 }
 
+.site-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.language-switcher {
+  display: inline-flex;
+  gap: 0.2rem;
+  border: 1px solid rgba(183, 81, 52, 0.2);
+  border-radius: 999px;
+  background: #fff7f1;
+  padding: 0.2rem;
+}
+
+.language-switcher__button {
+  min-width: 2.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #6d3525;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 0.4rem 0.55rem;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.language-switcher__button:hover,
+.language-switcher__button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.language-switcher__button[aria-pressed="true"] {
+  background: #b75134;
+  color: #fffaf5;
+  box-shadow: 0 8px 18px rgba(183, 81, 52, 0.2);
+}
+
 .section-card {
   overflow: hidden;
   border: 1px solid rgba(109, 69, 54, 0.14);
@@ -432,6 +475,10 @@ p {
     display: none;
   }
 
+  .site-header__actions {
+    margin-left: auto;
+  }
+
   .hero,
   .card-grid,
   .process__steps {
@@ -469,6 +516,11 @@ p {
 
   .section-card {
     border-radius: 22px;
+  }
+
+  .site-header__actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .button--compact {

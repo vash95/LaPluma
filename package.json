@@ -1,0 +1,11 @@
+{
+  "name": "la-pluma",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 5173",
+    "build": "rm -rf dist && mkdir -p dist && cp index.html dist/ && cp -R src public dist/",
+    "preview": "python3 -m http.server 4173 --directory dist"
+  }
+}

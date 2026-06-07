@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="La Pluma crea funkos personalizados, figuras para regalo y manualidades únicas hechas a mano por encargo."
+    />
+    <title>La Pluma | Funkos personalizados y manualidades únicas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <header class="site-header" aria-label="Cabecera principal">
+      <a class="brand" href="#inicio" aria-label="Ir al inicio de La Pluma">
+        <span class="brand__icon">✦</span>
+        <span>La Pluma</span>
+      </a>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="#catalogo">Catálogo</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio">
+        <div class="hero__content">
+          <p class="eyebrow">Piezas artesanales por encargo</p>
+          <h1>Funkos personalizados y manualidades únicas</h1>
+          <p class="hero__subtitle">
+            Cuéntanos a quién quieres sorprender y transformamos tu idea en una pieza hecha a mano,
+            llena de detalles y preparada para regalar.
+          </p>
+          <div class="hero__actions" aria-label="Acciones principales">
+            <a class="button button--primary" href="#catalogo">Ver catálogo</a>
+            <a class="button button--secondary" href="#contacto">Pedir presupuesto</a>
+          </div>
+        </div>
+        <div class="hero__card" aria-label="Mensaje destacado">
+          <span class="hero__sparkle">✽</span>
+          <p>Encargos únicos, colores suaves y acabados con cariño para regalos que cuentan historias.</p>
+        </div>
+      </section>
+
+      <section class="section" id="catalogo">
+        <div class="section__heading">
+          <p class="eyebrow">Catálogo inicial</p>
+          <h2>Ideas que podemos crear para ti</h2>
+          <p>Estos son ejemplos orientativos. Cada pedido se adapta a la persona, ocasión y nivel de detalle.</p>
+        </div>
+        <div class="product-grid">
+          <article class="product-card">
+            <img src="/public/funko-personalizado.svg" alt="Ilustración de un funko personalizado con colores pastel" />
+            <div class="product-card__body">
+              <h3>Funkos personalizados</h3>
+              <p>Mini figuras inspiradas en personas reales, mascotas o personajes favoritos con detalles pintados a mano.</p>
+              <strong>Desde 35 €</strong>
+            </div>
+          </article>
+          <article class="product-card">
+            <img src="/public/figura-regalo.svg" alt="Ilustración de una caja de regalo artesanal" />
+            <div class="product-card__body">
+              <h3>Figuras para regalo</h3>
+              <p>Piezas conmemorativas para cumpleaños, bodas, graduaciones o detalles especiales.</p>
+              <strong>Consultar</strong>
+            </div>
+          </article>
+          <article class="product-card">
+            <img src="/public/manualidad-decorativa.svg" alt="Ilustración de una manualidad decorativa sonriente" />
+            <div class="product-card__body">
+              <h3>Manualidades decorativas</h3>
+              <p>Decoración hecha a mano para rincones bonitos, eventos, escritorios y habitaciones infantiles.</p>
+              <strong>Desde 18 €</strong>
+            </div>
+          </article>
+          <article class="product-card">
+            <img src="/public/pack-personalizado.svg" alt="Ilustración de un pack personalizado con varias piezas" />
+            <div class="product-card__body">
+              <h3>Packs personalizados</h3>
+              <p>Combina figura, tarjeta, envoltorio y detalles a juego para un regalo listo para emocionar.</p>
+              <strong>Consultar</strong>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section--accent" id="como-funciona">
+        <div class="section__heading">
+          <p class="eyebrow">Proceso sencillo</p>
+          <h2>Cómo funciona</h2>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <span>1</span>
+            <p>Nos envías tu idea, foto o referencia.</p>
+          </article>
+          <article class="step">
+            <span>2</span>
+            <p>Preparamos una propuesta con diseño y presupuesto.</p>
+          </article>
+          <article class="step">
+            <span>3</span>
+            <p>Fabricamos la pieza a mano cuidando cada detalle.</p>
+          </article>
+          <article class="step">
+            <span>4</span>
+            <p>La entregamos o enviamos con un empaquetado bonito.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="about section" aria-labelledby="about-title">
+        <div>
+          <p class="eyebrow">Sobre el taller</p>
+          <h2 id="about-title">Hecho a mano, pensado para emocionar</h2>
+        </div>
+        <p>
+          En La Pluma creemos que los regalos más bonitos son los que hablan de alguien en concreto. Por eso
+          cada pieza se modela, pinta y prepara artesanalmente, sin prisas y con atención a esos pequeños rasgos
+          que hacen que un encargo sea irrepetible. Trabajamos con una estética cálida, dulce y personalizada para
+          que tu regalo llegue con una historia propia.
+        </p>
+      </section>
+
+      <section class="contact section" id="contacto">
+        <div class="contact__intro">
+          <p class="eyebrow">Hablemos de tu idea</p>
+          <h2>Pide tu presupuesto</h2>
+          <p>
+            Rellena el formulario o escríbenos directamente. Si tienes fotos, referencias o una fecha límite,
+            inclúyelas para poder orientarte mejor.
+          </p>
+          <div class="quick-contact" aria-label="Canales de contacto rápidos">
+            <a href="https://wa.me/34000000000" target="_blank" rel="noreferrer">WhatsApp</a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="mailto:hola@lapluma.example">Email</a>
+          </div>
+        </div>
+
+        <form class="contact-form" aria-label="Formulario de presupuesto">
+          <label>
+            Nombre
+            <input type="text" name="name" placeholder="Tu nombre" autocomplete="name" required />
+          </label>
+          <label>
+            Email o WhatsApp
+            <input type="text" name="contact" placeholder="email@ejemplo.com o +34..." autocomplete="email" required />
+          </label>
+          <label>
+            Tipo de encargo
+            <select name="type" required>
+              <option value="" disabled selected>Selecciona una opción</option>
+              <option>Funko personalizado</option>
+              <option>Figura para regalo</option>
+              <option>Manualidad decorativa</option>
+              <option>Pack personalizado</option>
+            </select>
+          </label>
+          <label>
+            Descripción del pedido
+            <textarea name="description" rows="5" placeholder="Cuéntanos la idea, ocasión, colores y detalles importantes" required></textarea>
+          </label>
+          <label>
+            Enlace o referencia opcional
+            <input type="url" name="reference" placeholder="https://..." />
+          </label>
+          <button class="button button--primary" type="submit">Enviar solicitud</button>
+          <p class="form-note" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="/src/main.js" type="module"></script>
+  </body>
+</html>

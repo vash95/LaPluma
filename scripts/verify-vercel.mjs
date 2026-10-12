@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
-import handler from '../api/[...route].js';
+import handler from '../api/index.js';
 import { initialContent } from '../lib/content.mjs';
 const originalFetch=globalThis.fetch;
 const names=['SUPABASE_URL','SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','ADMIN_EMAIL'];
@@ -48,6 +48,8 @@ async function request(route,method='GET',data,cookie,origin='https://lapluma.ex
 }
 try{
  assert.equal((await request('/api/admin/content')).status,401);
+ assert.equal((await request('/api/index?route=session')).body.authenticated,false);
+ assert.equal((await request('/api/index?route=admin/content')).status,401);
  assert.equal((await request('/api/login','POST',{email:'admin@example.com',password:'wrong'})).status,401);
  assert.equal((await request('/api/login','POST',{email:'other@example.com',password:'test-password'})).status,401);
  assert.equal((await request('/api/admin/content','GET',null,'lapluma_session=other-token')).status,401);
@@ -56,6 +58,7 @@ try{
  const initial=await request('/api/admin/content','GET',null,cookie);assert.equal(initial.status,200);assert.deepEqual(initial.body.content,initialContent().content);
  const png=Buffer.from([137,80,78,71,13,10,26,10]);
  const upload=await request('/api/admin/upload','POST',png,cookie);assert.equal(upload.status,201);const image=upload.body.url;
+ assert.equal((await request('/api/index?route=uploads/'+image.split('/').pop())).status,404);
  assert.equal((await request(image)).status,404);assert.equal((await request(image,'GET',null,cookie)).status,200);
  assert.equal((await request('/api/admin/upload','POST',Buffer.from('<svg></svg>'),cookie)).status,400);
  const state=initial.body;state.content.es.hero.title='Cambios persistentes';state.posts=[{id:'draft',title:'Borrador',body:'Privado',date:'2026-10-12',image,status:'draft',language:'es'},{id:'public',title:'Publicado',body:'Visible',date:'2026-10-12',image:'',status:'published',language:'es'}];

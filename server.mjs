@@ -66,7 +66,7 @@ async function handle(req, res) {
   }
   if (req.method !== 'GET' && req.method !== 'HEAD') return json(res, 405, { error: 'Método no permitido' });
   const route = url.pathname === '/' ? '/index.html' : url.pathname === '/admin' ? '/admin.html' : url.pathname;
-  const allowed = ['/index.html','/admin.html','/src/main.js','/src/admin.js','/src/styles.css','/src/admin.css'];
+  const allowed = ['/index.html','/admin.html','/src/main.js','/src/admin.js','/src/api-response.js','/src/styles.css','/src/admin.css'];
   let file;
   if (allowed.includes(route)) file = path.join(root, route);
   else if (imagePath(route) && route.startsWith('/uploads/')) file = path.join(dataDir, route);

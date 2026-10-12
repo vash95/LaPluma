@@ -39,9 +39,10 @@ globalThis.fetch=async(url,options={})=>{
  }
  throw new Error('Unexpected Supabase route');
 };
-async function request(route,method='GET',data,cookie,origin='https://lapluma.example'){
+async function request(route,method='GET',data,cookie,origin='https://lapluma.example',preparsed=false){
  const bytes=data instanceof Buffer?data:data?Buffer.from(JSON.stringify(data)):Buffer.alloc(0);
  const req=Readable.from([bytes]);Object.assign(req,{url:route,method,headers:{host:'lapluma.example',origin,'x-requested-with':'LaPluma',...(cookie?{cookie}:{})}});
+ if(preparsed){req.body=data;req[Symbol.asyncIterator]=async function*(){throw new Error('El cuerpo ya está procesado');};}
  let status,headers={},output;
  const res={writeHead(code,values){status=code;Object.assign(headers,values);},setHeader(key,value){headers[key]=value;},end(value){output=value;}};
  await handler(req,res);
@@ -60,13 +61,13 @@ try{
  assert.equal((await request('/api/admin/content','GET',null,'lapluma_session=second-token')).status,200);
  const initial=await request('/api/admin/content','GET',null,cookie);assert.equal(initial.status,200);assert.deepEqual(initial.body.content,initialContent().content);
  const png=Buffer.from([137,80,78,71,13,10,26,10]);
- const upload=await request('/api/admin/upload','POST',png,cookie);assert.equal(upload.status,201);const image=upload.body.url;
+ const upload=await request('/api/admin/upload','POST',png,cookie,'https://lapluma.example',true);assert.equal(upload.status,201);const image=upload.body.url;
  assert.equal((await request('/api/index?route=uploads/'+image.split('/').pop())).status,404);
  assert.equal((await request(image)).status,404);assert.equal((await request(image,'GET',null,cookie)).status,200);
  assert.equal((await request('/api/admin/upload','POST',Buffer.from('<svg></svg>'),cookie)).status,400);
  const state=initial.body;state.content.es.hero.title='Cambios persistentes';state.posts=[{id:'draft',title:'Borrador',body:'Privado',date:'2026-10-12',image,status:'draft',language:'es'},{id:'public',title:'Publicado',body:'Visible',date:'2026-10-12',image:'',status:'published',language:'es'}];
  assert.equal((await request('/api/admin/content','PUT',state,cookie,'https://evil.example')).status,403);
- const saved=await request('/api/admin/content','PUT',state,cookie);assert.equal(saved.status,200);assert.equal(saved.body.revision,1);
+ const saved=await request('/api/admin/content','PUT',state,cookie,'https://lapluma.example',true);assert.equal(saved.status,200);assert.equal(saved.body.revision,1);
  assert.equal((await request('/api/admin/content','GET',null,'lapluma_session=second-token')).body.content.es.hero.title,'Cambios persistentes');
  const publicState=await request('/api/content');assert.equal(publicState.body.posts.length,1);assert.equal(publicState.body.posts[0].id,'public');assert.equal(publicState.body.content.es.hero.title,'Cambios persistentes');
  assert.equal((await request(image)).status,404);

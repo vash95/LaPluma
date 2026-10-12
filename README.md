@@ -46,3 +46,9 @@ npm run build
 ```
 
 Las pruebas de las funciones Vercel usan una simulación de Supabase para verificar autorización, borradores, persistencia, conflictos entre guardados e imágenes privadas. La prueba del servidor local necesita permiso para abrir un puerto local. Tras configurar las variables, verifica también el login, guardado y subida en el despliegue real.
+
+## Guardado automático del panel
+
+Los textos, entradas y fotografías se guardan automáticamente un segundo después del último cambio. El indicador distingue cambios pendientes, guardado en curso y confirmación del servidor. Si falla, los cambios permanecen en el panel y puedes pulsar «Reintentar guardado». No cierres la pestaña mientras queden cambios pendientes. Las entradas en estado «Publicada» se actualizan automáticamente en la web; usa «Borrador» mientras preparas una entrada. Si otro administrador guarda al mismo tiempo, se avisa del conflicto sin sobrescribir sus cambios.
+
+Si Supabase rechaza el guardado o la subida, el panel indica cuándo falta la tabla, el bucket o los permisos de la clave del servidor. Comprueba el SQL de configuración y `SUPABASE_SERVICE_ROLE_KEY` antes de volver a desplegar.

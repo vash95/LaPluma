@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import { createAutosave } from '../src/autosave.js';
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+let state = { text:'', revision:0 }, calls=[], statuses=[], release;
+const saver = createAutosave({delay:10,snapshot:()=>structuredClone(state),persist:async value=>{calls.push(value);if(calls.length===1)await new Promise(resolve=>release=resolve);return {revision:value.revision+1};},apply:result=>{state.revision=result.revision;},status:value=>statuses.push(value)});
+state.text='a';saver.mark();state.text='ab';saver.mark();await wait(30);assert.equal(calls.length,1);assert.equal(calls[0].text,'ab');
+state.text='abc';saver.mark();release();await wait(40);assert.equal(calls.length,2);assert.equal(calls[1].text,'abc');assert.equal(calls[1].revision,1);assert.equal(state.revision,2);assert.equal(saver.pending(),false);assert.equal(statuses.at(-1),'saved');
+let fail=true, errors=[], stored;
+const recovery=createAutosave({delay:10,snapshot:()=>({text:'no perder'}),persist:async value=>{if(fail)throw new Error('Sin conexión');stored=value;return {};},apply:()=>{},status:(value,error)=>errors.push([value,error?.message])});
+recovery.mark();await wait(30);assert.equal(recovery.pending(),true);assert.deepEqual(errors.at(-1),['error','Sin conexión']);fail=false;await recovery.flush();assert.equal(stored.text,'no perder');assert.equal(recovery.pending(),false);
+recovery.pause();recovery.mark();await wait(20);assert.equal(recovery.pending(),true);recovery.resume();await wait(30);assert.equal(recovery.pending(),false);
+console.log('Guardado automático: debounce, ediciones durante guardado, revisión, errores y reintentos verificados.');

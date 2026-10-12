@@ -3,9 +3,9 @@ import { Readable } from 'node:stream';
 import handler from '../api/index.js';
 import { initialContent } from '../lib/content.mjs';
 const originalFetch=globalThis.fetch;
-const names=['SUPABASE_URL','SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','ADMIN_EMAIL'];
+const names=['SUPABASE_URL','SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','ADMIN_EMAIL','ADMIN_EMAILS'];
 const previous=Object.fromEntries(names.map(k=>[k,process.env[k]]));
-Object.assign(process.env,{SUPABASE_URL:'https://supabase.invalid',SUPABASE_ANON_KEY:'fake-anon',SUPABASE_SERVICE_ROLE_KEY:'fake-service',ADMIN_EMAIL:'admin@example.com'});
+Object.assign(process.env,{SUPABASE_URL:'https://supabase.invalid',SUPABASE_ANON_KEY:'fake-anon',SUPABASE_SERVICE_ROLE_KEY:'fake-service',ADMIN_EMAIL:'admin@example.com',ADMIN_EMAILS:' Admin@example.com, SECOND@example.com '});
 let record={document:null,revision:0}, objects=new Map(), revoked=false;
 const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json'}});
 globalThis.fetch=async(url,options={})=>{
@@ -14,10 +14,11 @@ globalThis.fetch=async(url,options={})=>{
  if(parsed.pathname==='/auth/v1/token'){
   const data=JSON.parse(options.body);
   if(data.password!=='test-password')return reply({error:'bad'},400);
-  revoked=false;return reply({access_token:data.email==='admin@example.com'?'admin-token':'other-token',expires_in:3600,user:{email:data.email,email_confirmed_at:'2026-10-12'}});
+  revoked=false;return reply({access_token:data.email==='admin@example.com'?'admin-token':data.email==='second@example.com'?'second-token':'other-token',expires_in:3600,user:{email:data.email,email_confirmed_at:'2026-10-12'}});
  }
  if(parsed.pathname==='/auth/v1/user'){
   if(token==='Bearer admin-token'&&!revoked)return reply({email:'admin@example.com',email_confirmed_at:'2026-10-12'});
+  if(token==='Bearer second-token')return reply({email:'second@example.com',email_confirmed_at:'2026-10-12'});
   if(token==='Bearer other-token')return reply({email:'other@example.com',email_confirmed_at:'2026-10-12'});
   return reply({error:'expired'},401);
  }
@@ -55,6 +56,8 @@ try{
  assert.equal((await request('/api/admin/content','GET',null,'lapluma_session=other-token')).status,401);
  const login=await request('/api/login','POST',{email:'admin@example.com',password:'test-password'});assert.equal(login.status,200);assert.match(login.headers['Set-Cookie'],/HttpOnly; Secure; SameSite=Strict/);
  const cookie='lapluma_session=admin-token';
+ assert.equal((await request('/api/login','POST',{email:'SECOND@example.com',password:'test-password'})).status,200);
+ assert.equal((await request('/api/admin/content','GET',null,'lapluma_session=second-token')).status,200);
  const initial=await request('/api/admin/content','GET',null,cookie);assert.equal(initial.status,200);assert.deepEqual(initial.body.content,initialContent().content);
  const png=Buffer.from([137,80,78,71,13,10,26,10]);
  const upload=await request('/api/admin/upload','POST',png,cookie);assert.equal(upload.status,201);const image=upload.body.url;
@@ -64,10 +67,18 @@ try{
  const state=initial.body;state.content.es.hero.title='Cambios persistentes';state.posts=[{id:'draft',title:'Borrador',body:'Privado',date:'2026-10-12',image,status:'draft',language:'es'},{id:'public',title:'Publicado',body:'Visible',date:'2026-10-12',image:'',status:'published',language:'es'}];
  assert.equal((await request('/api/admin/content','PUT',state,cookie,'https://evil.example')).status,403);
  const saved=await request('/api/admin/content','PUT',state,cookie);assert.equal(saved.status,200);assert.equal(saved.body.revision,1);
+ assert.equal((await request('/api/admin/content','GET',null,'lapluma_session=second-token')).body.content.es.hero.title,'Cambios persistentes');
  const publicState=await request('/api/content');assert.equal(publicState.body.posts.length,1);assert.equal(publicState.body.posts[0].id,'public');assert.equal(publicState.body.content.es.hero.title,'Cambios persistentes');
  assert.equal((await request(image)).status,404);
  assert.equal((await request('/api/admin/content','PUT',state,cookie)).status,409);
- state.revision=1;state.posts[0].status='published';assert.equal((await request('/api/admin/content','PUT',state,cookie)).status,200);
+ state.revision=1;state.posts[0].status='published';assert.equal((await request('/api/admin/content','PUT',state,'lapluma_session=second-token')).status,200);
+ process.env.ADMIN_EMAILS='admin@example.com';
+ assert.equal((await request('/api/admin/content','GET',null,'lapluma_session=second-token')).status,401);
+ delete process.env.ADMIN_EMAILS;
+ assert.equal((await request('/api/admin/content','GET',null,cookie)).status,200);
+ process.env.ADMIN_EMAILS='other@example.com';
+ assert.equal((await request('/api/admin/content','GET',null,cookie)).status,401);
+ process.env.ADMIN_EMAILS='admin@example.com';
  assert.equal((await request('/api/uploads/'+image.split('/').pop())).status,200);
  state.revision=2;state.photos.hero='https://unsafe.example/image.svg';assert.equal((await request('/api/admin/content','PUT',state,cookie)).status,400);
  assert.equal((await request('/api/logout','POST',{},cookie)).status,200);assert.equal((await request('/api/admin/content','GET',null,cookie)).status,401);

@@ -52,9 +52,29 @@ function render(){
  if(!state.posts.some(p=>p.language===language))area.append(el('p','Todavía no hay publicaciones en este idioma. Crea la primera para compartir tus trabajos.'));
 }
 function fields(parent,obj,key){ const value=obj[key];if(typeof value==='string'){if(key==='title' && Object.hasOwn(obj,'description') && Object.keys(obj).length===2 && value.startsWith(BRAND_NAME+' | ')){parent.append(field('Título de la página (la marca se añade automáticamente)',value.slice((BRAND_NAME+' | ').length),v=>obj[key]=BRAND_NAME+' | '+v,true));return;}parent.append(field(labels[key]||(/^\d+$/.test(key)?`Elemento ${Number(key)+1}`:key),value,v=>obj[key]=v,true));}else{for(const child of Object.keys(value)){if(typeof value[child]==='object'){const group=el('fieldset');group.append(el('legend',`Elemento ${Number(child)+1}`));fields(group,value,child);parent.append(group);}else fields(parent,value,child);}}}
-function imagePicker(parent,url,onChange){const preview=el('img');preview.alt='Vista previa de la fotografía';preview.hidden=!url;preview.src=url||'';parent.append(preview);const label=el('label','Subir fotografía'),input=el('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';label.append(input);parent.append(label);
- input.onchange=async()=>{const file=input.files[0];if(!file)return;if(file.size>4_000_000){report(new Error('La imagen debe pesar hasta 4 MB'));return;}input.disabled=true;message.textContent='Subiendo imagen…';try{const uploaded=await api('/api/admin/upload','POST',file);onChange(uploaded.url);preview.src=uploaded.url;preview.hidden=false;message.textContent='Imagen subida. Guardando automáticamente…';}catch(e){report(e);}finally{input.disabled=false;}};
- parent.append(button('Quitar foto',()=>{onChange('');preview.hidden=true;input.value='';}));}
+function imagePicker(parent,url,onChange){
+ const preview=el('img');preview.alt='Vista previa de la fotografía';preview.hidden=!url;if(url)preview.src=url;parent.append(preview);
+ const label=el('label','Elegir fotografía'),input=el('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';label.append(input);parent.append(label);
+ const zone=el('div',null,'photo-dropzone');zone.tabIndex=0;zone.setAttribute('role','group');zone.setAttribute('aria-label','Adjuntar una fotografía arrastrándola o pegándola');
+ zone.append(el('strong','Arrastra aquí tu fotografía'),el('p','También puedes hacer clic aquí y pegar una imagen copiada con Ctrl+V (o Cmd+V). JPG, PNG o WebP, hasta 4 MB.'));
+ parent.append(zone);
+ let uploading=false;
+ const remove=button('Quitar foto',()=>{onChange('');preview.hidden=true;preview.removeAttribute('src');input.value='';});parent.append(remove);
+ async function upload(file){
+  if(!file || uploading)return;
+  if(file.size>4_000_000){report(new Error('La imagen debe pesar hasta 4 MB'));return;}
+  if(file.type && !['image/jpeg','image/png','image/webp'].includes(file.type)){report(new Error('Usa una fotografía JPG, PNG o WebP'));return;}
+  uploading=true;input.disabled=true;remove.disabled=true;zone.setAttribute('aria-busy','true');message.textContent='Subiendo imagen…';
+  try{const uploaded=await api('/api/admin/upload','POST',file);onChange(uploaded.url);preview.src=uploaded.url;preview.hidden=false;message.textContent='Imagen subida. Guardando automáticamente…';}
+  catch(e){report(e);}
+  finally{uploading=false;input.disabled=false;remove.disabled=false;zone.removeAttribute('aria-busy');input.value='';}
+ }
+ input.onchange=()=>upload(input.files[0]);
+ zone.addEventListener('dragover',event=>{event.preventDefault();event.dataTransfer.dropEffect=uploading?'none':'copy';zone.classList.add('photo-dropzone--active');});
+ zone.addEventListener('dragleave',event=>{if(!zone.contains(event.relatedTarget))zone.classList.remove('photo-dropzone--active');});
+ zone.addEventListener('drop',event=>{event.preventDefault();zone.classList.remove('photo-dropzone--active');const files=event.dataTransfer.files;if(files.length!==1){report(new Error('Arrastra una sola fotografía cada vez'));return;}upload(files[0]);});
+ zone.addEventListener('paste',event=>{const files=Array.from(event.clipboardData?.files||[]);if(files.length!==1){report(new Error('Copia una imagen y pégala aquí. También puedes arrastrarla desde una carpeta.'));return;}event.preventDefault();upload(files[0]);});
+}
 function editPost(post,area){area.replaceChildren(el('h2','Editar publicación'),field('Título',post.title,v=>post.title=v),field('Texto',post.body,v=>post.body=v,true),field('Fecha (AAAA-MM-DD)',post.date,v=>post.date=v));
  imagePicker(area,post.image,v=>{post.image=v;changed();}); const label=el('label','Visibilidad'),select=el('select');for(const [value,text]of [['draft','Borrador — solo visible en el panel'],['published','Publicada — visible en la web']]){const opt=el('option',text);opt.value=value;select.append(opt);}select.value=post.status;select.onchange=()=>{post.status=select.value;changed();};label.append(select);area.append(label,button('Guardar ahora',save,'button button--primary'),button('Volver a publicaciones',render));}
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});

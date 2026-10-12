@@ -1,3 +1,4 @@
+import { readApiResponse } from './api-response.js';
 const panel = document.querySelector('#panel'), message = document.querySelector('#message');
 let state, tab = 'posts', language = 'es', dirty = false;
 const labels = {hero:'Portada',about:'Sobre el taller',services:'Servicios',servicesIntro:'Título de servicios',process:'Proceso',processIntro:'Título del proceso',gallery:'Galería',galleryIntro:'Título de galería',faq:'Preguntas frecuentes',faqIntro:'Título de preguntas',contact:'Contacto',buttons:'Botones',meta:'Título y descripción de la página',title:'Título',description:'Descripción',eyebrow:'Texto superior',cta:'Texto de invitación',highlights:'Destacados',caption:'Pie de foto',trust:'Mensaje de confianza',text:'Texto',email:'Email',subject:'Asunto del email',note:'Nota de contacto',question:'Pregunta',answer:'Respuesta',icon:'Icono',budget:'Pedir presupuesto',works:'Ver trabajos'};
@@ -5,7 +6,7 @@ function el(tag, text, cls) { const node = document.createElement(tag); if (text
 function button(text, action, cls='button button--secondary') { const b = el('button',text,cls); b.type='button'; b.addEventListener('click',action); return b; }
 async function api(url, method='GET', data) {
  const headers = {'X-Requested-With':'LaPluma'}; if (data && !(data instanceof File)) headers['Content-Type']='application/json';
- const res = await fetch(url,{method,headers,body:data instanceof File ? data : data ? JSON.stringify(data) : undefined}); const result = await res.json();
+ const res = await fetch(url,{method,headers,body:data instanceof File ? data : data ? JSON.stringify(data) : undefined}); const result = await readApiResponse(res, url);
  if (!res.ok) { if (res.status === 401 && url !== '/api/login') login(); throw new Error(result.error); } return result;
 }
 function report(error) { message.textContent = error.message; }

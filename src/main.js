@@ -1,3 +1,5 @@
+const BRAND_NAME = 'La Ploma';
+
 const supportedLanguages = [
   { code: 'es', label: 'ES', name: 'Español' },
   { code: 'en', label: 'EN', name: 'English' },
@@ -8,8 +10,8 @@ const commercialContent = {
   es: {
     languageName: 'Español',
     aria: {
-      main: 'Contenido comercial de La Pluma',
-      brand: 'La Pluma, ir al inicio',
+      main: 'Contenido comercial de La Ploma',
+      brand: 'La Ploma, ir al inicio',
       nav: 'Navegación principal',
       language: 'Seleccionar idioma',
       visual: 'Ilustración de una figura personalizada artesanal',
@@ -17,7 +19,7 @@ const commercialContent = {
     },
     meta: {
       description: 'Creamos Funkos personalizados y manualidades hechas a mano para convertir tus ideas en regalos únicos.',
-      title: 'La Pluma | Funkos personalizados y manualidades',
+      title: 'La Ploma | Funkos personalizados y manualidades',
     },
     navigation: [
       { label: 'Inicio', href: '#hero' },
@@ -39,7 +41,7 @@ const commercialContent = {
     },
     about: {
       eyebrow: 'Sobre el taller',
-      title: 'La Pluma transforma recuerdos en pequeñas obras de arte',
+      title: 'La Ploma transforma recuerdos en pequeñas obras de arte',
       description:
         'Creamos Funkos personalizados y manualidades hechas a mano para convertir tus ideas en regalos únicos. Cada figura se realiza de forma artesanal, cuidando los detalles que hacen especial a cada persona, personaje o recuerdo.',
       trust:
@@ -140,15 +142,15 @@ const commercialContent = {
       text: 'Comparte qué quieres regalar, para quién es y cualquier detalle especial. Cuéntanos tu idea y te preparamos un presupuesto sin compromiso.',
       cta: 'Solicitar presupuesto',
       email: 'hola@lapluma.example',
-      subject: 'Presupuesto personalizado La Pluma',
+      subject: 'Presupuesto personalizado La Ploma',
       note: 'Escríbenos a {email} con fotos de referencia, fecha deseada y detalles importantes.',
     },
   },
   en: {
     languageName: 'English',
     aria: {
-      main: 'La Pluma commercial content',
-      brand: 'La Pluma, go to home',
+      main: 'La Ploma commercial content',
+      brand: 'La Ploma, go to home',
       nav: 'Primary navigation',
       language: 'Select language',
       visual: 'Illustration of a handcrafted custom figure',
@@ -156,7 +158,7 @@ const commercialContent = {
     },
     meta: {
       description: 'We create custom Funkos and handmade crafts to turn your ideas into unique gifts.',
-      title: 'La Pluma | Custom Funkos and handmade crafts',
+      title: 'La Ploma | Custom Funkos and handmade crafts',
     },
     navigation: [
       { label: 'Home', href: '#hero' },
@@ -178,7 +180,7 @@ const commercialContent = {
     },
     about: {
       eyebrow: 'About the workshop',
-      title: 'La Pluma transforms memories into tiny works of art',
+      title: 'La Ploma transforms memories into tiny works of art',
       description:
         'We create custom Funkos and handmade crafts to turn your ideas into unique gifts. Every figure is made by hand, taking care of the details that make each person, character or memory special.',
       trust: 'Personalised designs, one-of-a-kind pieces, friendly service and lovingly made finishes.',
@@ -278,15 +280,15 @@ const commercialContent = {
       text: 'Share what you want to give, who it is for and any special detail. Tell us your idea and we will prepare a no-obligation quote.',
       cta: 'Request a quote',
       email: 'hola@lapluma.example',
-      subject: 'Custom quote La Pluma',
+      subject: 'Custom quote La Ploma',
       note: 'Write to us at {email} with reference photos, desired date and important details.',
     },
   },
   ca: {
     languageName: 'Català',
     aria: {
-      main: 'Contingut comercial de La Pluma',
-      brand: 'La Pluma, ves a l’inici',
+      main: 'Contingut comercial de La Ploma',
+      brand: 'La Ploma, ves a l’inici',
       nav: 'Navegació principal',
       language: 'Selecciona idioma',
       visual: 'Il·lustració d’una figura personalitzada artesanal',
@@ -294,7 +296,7 @@ const commercialContent = {
     },
     meta: {
       description: 'Creem Funkos personalitzats i manualitats fetes a mà per convertir les teves idees en regals únics.',
-      title: 'La Pluma | Funkos personalitzats i manualitats',
+      title: 'La Ploma | Funkos personalitzats i manualitats',
     },
     navigation: [
       { label: 'Inici', href: '#hero' },
@@ -316,7 +318,7 @@ const commercialContent = {
     },
     about: {
       eyebrow: 'Sobre el taller',
-      title: 'La Pluma transforma records en petites obres d’art',
+      title: 'La Ploma transforma records en petites obres d’art',
       description:
         'Creem Funkos personalitzats i manualitats fetes a mà per convertir les teves idees en regals únics. Cada figura es fa de manera artesanal, cuidant els detalls que fan especial cada persona, personatge o record.',
       trust: 'Dissenys personalitzats, peces úniques, tracte proper i acabats fets amb cura.',
@@ -416,11 +418,28 @@ const commercialContent = {
       text: 'Comparteix què vols regalar, per a qui és i qualsevol detall especial. Explica’ns la teva idea i et prepararem un pressupost sense compromís.',
       cta: 'Sol·licitar pressupost',
       email: 'hola@lapluma.example',
-      subject: 'Pressupost personalitzat La Pluma',
+      subject: 'Pressupost personalitzat La Ploma',
       note: 'Escriu-nos a {email} amb fotos de referència, data desitjada i detalls importants.',
     },
   },
 };
+
+function normalizeContentBrand(content) {
+  const replaceLegacy = value => {
+    if (typeof value === 'string') return value.replace(/La Pluma/gi, BRAND_NAME);
+    if (Array.isArray(value)) return value.map(replaceLegacy);
+    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, replaceLegacy(item)]));
+    return value;
+  };
+  const normalized = replaceLegacy(content);
+  for (const [language, texts] of Object.entries(normalized)) {
+    if (!commercialContent[language] || !texts?.meta) continue;
+    const title = texts.meta.title.replace(/^La (?:Ploma|Pluma)\s*(?:[|:–—-]\s*)?/i, '').trim();
+    texts.meta.title = `${BRAND_NAME} | ${title || commercialContent[language].meta.title.split(' | ')[1]}`;
+    if (texts.aria) texts.aria.brand = commercialContent[language].aria.brand;
+  }
+  return normalized;
+}
 
 function createElement(tag, className, text) {
   const element = document.createElement(tag);
@@ -436,7 +455,7 @@ function createElement(tag, className, text) {
 let savedSite = { content: commercialContent, photos: {}, posts: [] };
 
 function getContent(language = 'es') {
-  return savedSite.content[language] ?? commercialContent.es;
+  return normalizeContentBrand(savedSite.content)[language] ?? commercialContent.es;
 }
 
 function updateDocumentLanguage(language, content) {
@@ -451,7 +470,7 @@ function updateDocumentLanguage(language, content) {
 
 function Header(content, activeLanguage = 'es', onLanguageChange = () => {}) {
   const header = createElement('header', 'site-header');
-  const brand = createElement('a', 'site-header__brand', 'La Pluma');
+  const brand = createElement('a', 'site-header__brand', BRAND_NAME);
   brand.href = '#hero';
   brand.setAttribute('aria-label', content.aria.brand);
 
@@ -660,10 +679,10 @@ function Blog(language) {
   }
   return section;
 }
-if (typeof document !== 'undefined') {
+if (typeof document !== 'undefined' && document.querySelector('#app')) {
   renderPage('es');
   fetch('/api/content').then(response => { if (!response.ok) throw new Error('No disponible'); return response.json(); }).then(data => { savedSite = data; renderPage(document.documentElement.lang); }).catch(() => {});
 }
 
 
-export { supportedLanguages, commercialContent, getContent, Header, Hero, About, Services, Process, Gallery, FAQ, Contact, renderPage };
+export { BRAND_NAME, normalizeContentBrand, supportedLanguages, commercialContent, getContent, Header, Hero, About, Services, Process, Gallery, FAQ, Contact, renderPage };

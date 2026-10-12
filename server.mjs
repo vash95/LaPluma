@@ -4,13 +4,14 @@ import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { commercialContent } from './src/main.js';
-import { validContent } from './lib/content.mjs';
+import { validContent, normalizeSiteBrand } from './lib/content.mjs';
 const root = fileURLToPath(new URL('.', import.meta.url));
 const dataDir = process.env.DATA_DIR || path.join(root, 'data');
 await mkdir(path.join(dataDir, 'uploads'), { recursive: true });
 let state;
 try { state = JSON.parse(await readFile(path.join(dataDir, 'content.json'), 'utf8')); }
 catch (e) { if (e.code !== 'ENOENT') throw e; state = { content: structuredClone(commercialContent), photos: {}, posts: [] }; }
+state = normalizeSiteBrand(state);
 let account;
 try { account = JSON.parse(await readFile(path.join(dataDir, 'account.json'), 'utf8')); } catch (e) { if (e.code !== 'ENOENT') throw e; }
 const sessions = new Map(), attempts = new Map();
@@ -58,7 +59,8 @@ async function handle(req, res) {
       return json(res, 201, { url: `/uploads/${name}` });
     }
     if (url.pathname === '/api/admin/content' && req.method === 'PUT') {
-      const next = JSON.parse((await body(req)).toString());
+      const input = JSON.parse((await body(req)).toString());
+      const next = input?.content ? normalizeSiteBrand(input) : input;
       if (!validContent(next)) return json(res, 400, { error: 'Revisa los campos antes de guardar' });
       await persist({ content: next.content, photos: next.photos, posts: next.posts }); return json(res, 200, { ok: true });
     }

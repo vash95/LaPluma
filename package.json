@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node scripts/verify-content.mjs && node scripts/verify-api-response.mjs && node scripts/verify-vercel.mjs && node scripts/verify-admin.mjs",
+    "test": "node scripts/verify-content.mjs && node scripts/verify-api-response.mjs && node scripts/verify-autosave.mjs && node scripts/verify-vercel.mjs && node scripts/verify-admin.mjs",
     "start": "node server.mjs",
     "setup": "node scripts/setup.mjs",
     "build": "node scripts/build.mjs"

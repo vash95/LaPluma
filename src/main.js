@@ -433,8 +433,10 @@ function createElement(tag, className, text) {
   return element;
 }
 
+let savedSite = { content: commercialContent, photos: {}, posts: [] };
+
 function getContent(language = 'es') {
-  return commercialContent[language] ?? commercialContent.es;
+  return savedSite.content[language] ?? commercialContent.es;
 }
 
 function updateDocumentLanguage(language, content) {
@@ -515,6 +517,11 @@ function Hero({ eyebrow, title, cta, highlights, caption }, buttons, aria) {
     createElement('p', 'hero__caption', caption),
   );
 
+  if (savedSite.photos.hero) {
+    const photo = createElement('img', 'site-photo');
+    photo.src = savedSite.photos.hero; photo.alt = caption;
+    visual.replaceChildren(photo, createElement('p', 'hero__caption', caption));
+  }
   section.append(copy, visual);
 
   return section;
@@ -573,6 +580,11 @@ function Gallery(items, intro) {
   const grid = createElement('div', 'gallery__grid');
   items.forEach((item, index) => {
     const card = createElement('article', `gallery__item gallery__item--${index + 1}`);
+    if (savedSite.photos[`gallery-${index}`]) {
+      const photo = createElement('img', 'site-photo');
+      photo.src = savedSite.photos[`gallery-${index}`]; photo.alt = item; photo.loading = 'lazy';
+      card.append(photo);
+    }
     card.append(createElement('span', null, item));
     grid.append(card);
   });
@@ -625,12 +637,33 @@ function renderPage(language = 'es', mountNode = document.querySelector('#app'))
     Process(content.process, content.processIntro),
     Gallery(content.gallery, content.galleryIntro),
     FAQ(content.faq, content.faqIntro),
+    Blog(activeLanguage),
     Contact(content.contact),
+    AdminLink(),
   );
 }
 
+function AdminLink() {
+  const footer = createElement('footer');
+  const link = createElement('a', null, 'Administración'); link.href = '/admin'; footer.append(link); return footer;
+}
+function Blog(language) {
+  const section = createElement('section', 'section-card'); section.id = 'blog';
+  section.append(createElement('h2', null, {es:'Novedades del taller',en:'Workshop journal',ca:'Novetats del taller'}[language]));
+  const posts = savedSite.posts.filter(p => p.status === 'published' && p.language === language).sort((a,b) => b.date.localeCompare(a.date));
+  if (!posts.length) { section.hidden = true; return section; }
+  for (const post of posts) {
+    const article = createElement('article', 'blog-post'); article.id = `post-${post.id}`;
+    article.append(createElement('h3',null,post.title)); const date=createElement('time',null,post.date); date.dateTime=post.date; article.append(date);
+    if(post.image){const img=createElement('img','blog-photo');img.src=post.image;img.alt=post.title;img.loading='lazy';article.append(img);}
+    article.append(createElement('p','blog-body',post.body)); section.append(article);
+  }
+  return section;
+}
 if (typeof document !== 'undefined') {
   renderPage('es');
+  fetch('/api/content').then(response => { if (!response.ok) throw new Error('No disponible'); return response.json(); }).then(data => { savedSite = data; renderPage(document.documentElement.lang); }).catch(() => {});
 }
+
 
 export { supportedLanguages, commercialContent, getContent, Header, Hero, About, Services, Process, Gallery, FAQ, Contact, renderPage };
